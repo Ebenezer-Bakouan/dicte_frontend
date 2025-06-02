@@ -64,7 +64,7 @@ export default function Home() {
         console.log('Chemin de l\'audio:', audioPath);
         
         // Vérifier que le fichier audio existe
-        const audioResponse = await fetch(`http://localhost:8000/${audioPath}`);
+        const audioResponse = await fetch(`https://dicte-backend.onrender.com/${audioPath}`);
         console.log('Statut de la vérification audio:', audioResponse.status);
         
         if (audioResponse.ok) {
@@ -89,7 +89,7 @@ export default function Home() {
   const handleDictationComplete = async (userText: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:8000/api/dictation/correct/', {
+      const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -49,7 +49,7 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
       <div className="mb-6">
         <audio 
           ref={audioRef} 
-          src={`http://localhost:8000${audioUrl}`} 
+          src={`https://dicte-backend.onrender.com${audioUrl}`} 
           className="w-full"
         />
         <div className="flex justify-center space-x-4">
