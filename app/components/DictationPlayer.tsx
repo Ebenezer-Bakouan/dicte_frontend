@@ -51,8 +51,9 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
           ref={audioRef} 
           src={audioUrl} 
           className="w-full"
+          controls
         />
-        <div className="flex justify-center space-x-4">
+        <div className="flex justify-center space-x-4 mt-4">
           {!isPlaying ? (
             <button
               onClick={handlePlay}
