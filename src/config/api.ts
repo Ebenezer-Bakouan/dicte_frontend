@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+export const API_URL = 'https://dicte-backend.onrender.com';
 
 export const API_ENDPOINTS = {
   GENERATE_DICTATION: `${API_URL}/api/dictation/generate/`,
