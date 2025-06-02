@@ -21,12 +21,13 @@ interface DictationFormData {
   includeOrthographe: boolean;
 }
 
-type DictationResponse = {
+interface DictationResponse {
+  id: number;
   text: string;
   audio_url: string;
-  audio_files: string[];
-  // Ajoutez d'autres propriétés si nécessaire
-};
+  title: string;
+  difficulty: string;
+}
 
 export default function Home() {
   const [step, setStep] = useState<'form' | 'player' | 'results'>('form');
@@ -52,34 +53,38 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Erreur lors de la génération de la dictée');
       }
 
-      const data = await response.json() as DictationResponse;
-      console.log('Réponse complète du serveur:', data);
+      const responseData = await response.json();
+      console.log('Réponse complète du serveur:', responseData);
 
-      // S'assurer que nous avons une URL d'audio valide
-      if (data.audio_files && data.audio_files.length > 0) {
-        const audioPath = data.audio_files[0];
+      if (responseData.audio_url) {
+        const audioPath = responseData.audio_url;
         console.log('Chemin de l\'audio:', audioPath);
-        
-        // Vérifier que le fichier audio existe
-        const audioResponse = await fetch(`https://dicte-backend.onrender.com/${audioPath}`);
-        console.log('Statut de la vérification audio:', audioResponse.status);
-        
-        if (audioResponse.ok) {
-          setAudioUrl(`/${audioPath}`);
-          setStep('player');
-        } else {
+
+        // Vérifier si le fichier audio est accessible
+        try {
+          const audioResponse = await fetch(audioPath);
+          if (audioResponse.ok) {
+            console.log('Statut de la vérification audio:', audioResponse.status);
+            setAudioUrl(audioPath);
+            setStep('player');
+          } else {
+            console.error('Statut de la vérification audio:', audioResponse.status);
+            throw new Error('Erreur lors de la vérification de l\'audio');
+          }
+        } catch (error) {
           console.error('Erreur lors de la vérification de l\'audio');
-          throw new Error('Le fichier audio n\'a pas pu être généré');
+          console.error('Erreur détaillée:', error);
+          throw error;
         }
       } else {
-        console.error('Pas de fichiers audio dans la réponse');
-        throw new Error('Aucun fichier audio généré');
+        console.error('Pas de fichier audio dans la réponse');
+        throw new Error('Pas de fichier audio dans la réponse');
       }
     } catch (error) {
-      console.error('Erreur détaillée:', error);
+      console.error('Erreur:', error);
       alert('Une erreur est survenue lors de la génération de la dictée');
     } finally {
       setIsLoading(false);

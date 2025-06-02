@@ -13,7 +13,7 @@ export interface DictationParams {
 export interface DictationResponse {
   id: number;
   text: string;
-  audio_files: string[];
+  audio_url: string;
   title: string;
   difficulty: string;
 } 
