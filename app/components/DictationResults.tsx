@@ -1,50 +1,98 @@
 'use client';
 
+import { motion } from 'framer-motion';
+import { CheckCircle, XCircle, AlertCircle, Star } from 'lucide-react';
+
 interface DictationResultsProps {
   score: number;
   errors: string[];
   correction: string;
-  total_words?: number;
-  error_count?: number;
 }
 
-export default function DictationResults({ score, errors, correction, total_words, error_count }: DictationResultsProps) {
+export default function DictationResults({ score, errors, correction }: DictationResultsProps) {
+  const getScoreColor = () => {
+    if (score >= 90) return 'text-green-400';
+    if (score >= 70) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getScoreMessage = () => {
+    if (score >= 90) return 'Excellent !';
+    if (score >= 70) return 'Bien !';
+    return 'À améliorer';
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Résultats de la Dictée</h2>
-      
-      <div className="mb-8">
-        <div className="text-center">
-          <div className="text-4xl font-bold text-indigo-600 mb-2">{score}/100</div>
-          <div className="text-gray-600">
-            {total_words} mots au total, {error_count} erreurs
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto"
+    >
+      <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/10">
+        {/* Score */}
+        <motion.div
+          initial={{ scale: 0.5 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center mb-8"
+        >
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
+            <Star className="w-12 h-12 text-white" />
           </div>
-        </div>
-      </div>
+          <h2 className="text-4xl font-bold text-white mb-2">Résultats</h2>
+          <div className="flex items-center justify-center gap-2">
+            <span className={`text-6xl font-bold ${getScoreColor()}`}>{score}%</span>
+            <span className="text-xl text-gray-300">{getScoreMessage()}</span>
+          </div>
+        </motion.div>
 
-      {errors.length > 0 ? (
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4">Erreurs trouvées :</h3>
-          <ul className="space-y-2">
-            {errors.map((error, index) => (
-              <li key={index} className="p-3 bg-red-50 text-red-700 rounded-md">
-                {error}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="mb-8 p-4 bg-green-50 text-green-700 rounded-md text-center">
-          Félicitations ! Aucune erreur trouvée.
-        </div>
-      )}
+        {/* Erreurs */}
+        {errors.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-8"
+          >
+            <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+              Erreurs à corriger
+            </h3>
+            <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+              <ul className="space-y-3">
+                {errors.map((error, index) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.4 + index * 0.1 }}
+                    className="flex items-start gap-3 text-gray-300"
+                  >
+                    <XCircle className="w-5 h-5 text-red-400 mt-1 flex-shrink-0" />
+                    <span>{error}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        )}
 
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">Correction :</h3>
-        <div className="p-4 bg-gray-50 rounded-md">
-          <p className="whitespace-pre-wrap">{correction}</p>
-        </div>
+        {/* Correction */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
+            <CheckCircle className="w-6 h-6 text-green-400" />
+            Texte corrigé
+          </h3>
+          <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+            <p className="text-gray-300 whitespace-pre-wrap">{correction}</p>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 } 

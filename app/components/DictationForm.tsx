@@ -1,43 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { FaUser, FaBook, FaClock, FaBrain, FaGraduationCap, FaBullseye, FaMagic } from 'react-icons/fa';
 
 interface DictationFormProps {
-  onSubmit: (formData: DictationFormData) => void;
-  isLoading?: boolean;
+  onSubmit: (data: any) => void;
+  isLoading: boolean;
 }
 
-interface DictationFormData {
-  age: string;
-  niveauScolaire: string;
-  objectifApprentissage: string;
-  difficultesSpecifiques: string;
-  tempsDisponible: string;
-  niveau: string;
-  sujet: string;
-  longueurTexte: string;
-  typeContenu: string;
-  vitesseLecture: string;
-  includeGrammaire: boolean;
-  includeConjugaison: boolean;
-  includeOrthographe: boolean;
-}
-
-export default function DictationForm({ onSubmit, isLoading = false }: DictationFormProps) {
+export default function DictationForm({ onSubmit, isLoading }: DictationFormProps) {
   const [formData, setFormData] = useState({
     age: '',
     niveauScolaire: '',
     objectifApprentissage: '',
     difficultesSpecifiques: '',
-    tempsDisponible: '',
-    niveau: '',
+    tempsDisponible: '15',
+    niveau: 'moyen',
     sujet: '',
-    longueurTexte: '',
-    typeContenu: '',
-    vitesseLecture: '',
+    longueurTexte: 'moyen',
+    typeContenu: 'narratif',
+    vitesseLecture: 'normale',
     includeGrammaire: true,
     includeConjugaison: true,
-    includeOrthographe: true
+    includeOrthographe: true,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,8 +31,8 @@ export default function DictationForm({ onSubmit, isLoading = false }: Dictation
     onSubmit(formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target as HTMLInputElement;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
@@ -54,215 +40,289 @@ export default function DictationForm({ onSubmit, isLoading = false }: Dictation
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Générer une Dictée</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Âge</label>
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Niveau Scolaire</label>
-          <select
-            name="niveauScolaire"
-            value={formData.niveauScolaire}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez un niveau</option>
-            <option value="Étudiant">Étudiant</option>
-            <option value="Collégien">Collégien</option>
-            <option value="Lycéen">Lycéen</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Objectif d'Apprentissage</label>
-          <select
-            name="objectifApprentissage"
-            value={formData.objectifApprentissage}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez un objectif</option>
-            <option value="accord">Accord</option>
-            <option value="conjugaison">Conjugaison</option>
-            <option value="orthographe">Orthographe</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Difficultés Spécifiques</label>
-          <select
-            name="difficultesSpecifiques"
-            value={formData.difficultesSpecifiques}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez une difficulté</option>
-            <option value="homophone">Homophones</option>
-            <option value="accord">Accords</option>
-            <option value="conjugaison">Conjugaison</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Temps Disponible (minutes)</label>
-          <input
-            type="number"
-            name="tempsDisponible"
-            value={formData.tempsDisponible}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Niveau</label>
-          <select
-            name="niveau"
-            value={formData.niveau}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez un niveau</option>
-            <option value="facile">Facile</option>
-            <option value="moyen">Moyen</option>
-            <option value="difficile">Difficile</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Sujet</label>
-          <input
-            type="text"
-            name="sujet"
-            value={formData.sujet}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Longueur du Texte</label>
-          <select
-            name="longueurTexte"
-            value={formData.longueurTexte}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez une longueur</option>
-            <option value="court">Court</option>
-            <option value="moyen">Moyen</option>
-            <option value="long">Long</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Type de Contenu</label>
-          <select
-            name="typeContenu"
-            value={formData.typeContenu}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez un type</option>
-            <option value="narratif">Narratif</option>
-            <option value="descriptif">Descriptif</option>
-            <option value="argumentatif">Argumentatif</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Vitesse de Lecture</label>
-          <select
-            name="vitesseLecture"
-            value={formData.vitesseLecture}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          >
-            <option value="">Sélectionnez une vitesse</option>
-            <option value="lente">Lente</option>
-            <option value="normale">Normale</option>
-            <option value="rapide">Rapide</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="space-y-2 mt-4">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="includeGrammaire"
-            checked={formData.includeGrammaire}
-            onChange={handleChange}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label className="ml-2 block text-sm text-gray-900">Inclure des points de grammaire</label>
-        </div>
-
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="includeConjugaison"
-            checked={formData.includeConjugaison}
-            onChange={handleChange}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label className="ml-2 block text-sm text-gray-900">Inclure des points de conjugaison</label>
-        </div>
-
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="includeOrthographe"
-            checked={formData.includeOrthographe}
-            onChange={handleChange}
-            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-          />
-          <label className="ml-2 block text-sm text-gray-900">Inclure des points d&apos;orthographe</label>
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-            isLoading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-4xl mx-auto"
+    >
+      <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/10">
+        <motion.div
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
         >
-          {isLoading ? (
-            <div className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Génération en cours...
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4">
+            <FaBook className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-2">Configuration de la Dictée</h2>
+          <p className="text-gray-300">Personnalisez votre expérience d'apprentissage</p>
+        </motion.div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Profil Utilisateur */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-white/5 rounded-xl p-6 border border-white/10"
+          >
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mr-3">
+                <FaUser className="w-5 h-5 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Profil Utilisateur</h3>
             </div>
-          ) : (
-            'Générer la Dictée'
-          )}
-        </button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Âge
+                </label>
+                <input
+                  type="number"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Ex: 12"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Niveau Scolaire
+                </label>
+                <select
+                  name="niveauScolaire"
+                  value={formData.niveauScolaire}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">Sélectionner...</option>
+                  <option value="CP">CP</option>
+                  <option value="CE1">CE1</option>
+                  <option value="CE2">CE2</option>
+                  <option value="CM1">CM1</option>
+                  <option value="CM2">CM2</option>
+                  <option value="6ème">6ème</option>
+                  <option value="5ème">5ème</option>
+                  <option value="4ème">4ème</option>
+                  <option value="3ème">3ème</option>
+                  <option value="Seconde">Seconde</option>
+                  <option value="Première">Première</option>
+                  <option value="Terminale">Terminale</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Objectif d'Apprentissage
+                </label>
+                <input
+                  type="text"
+                  name="objectifApprentissage"
+                  value={formData.objectifApprentissage}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Ex: Améliorer les accords, préparer un examen..."
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Difficultés Spécifiques
+                </label>
+                <input
+                  type="text"
+                  name="difficultesSpecifiques"
+                  value={formData.difficultesSpecifiques}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Ex: Les homophones, la conjugaison..."
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Paramètres de la Dictée */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-white/5 rounded-xl p-6 border border-white/10"
+          >
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mr-3">
+                <FaMagic className="w-5 h-5 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Paramètres de la Dictée</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Niveau
+                </label>
+                <select
+                  name="niveau"
+                  value={formData.niveau}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="facile">Facile</option>
+                  <option value="moyen">Moyen</option>
+                  <option value="difficile">Difficile</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Sujet
+                </label>
+                <input
+                  type="text"
+                  name="sujet"
+                  value={formData.sujet}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Ex: Les animaux, l'histoire..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Longueur du Texte
+                </label>
+                <select
+                  name="longueurTexte"
+                  value={formData.longueurTexte}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="court">Court</option>
+                  <option value="moyen">Moyen</option>
+                  <option value="long">Long</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Type de Contenu
+                </label>
+                <select
+                  name="typeContenu"
+                  value={formData.typeContenu}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="narratif">Narratif</option>
+                  <option value="descriptif">Descriptif</option>
+                  <option value="informatif">Informatif</option>
+                  <option value="dialogue">Dialogue</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Vitesse de Lecture
+                </label>
+                <select
+                  name="vitesseLecture"
+                  value={formData.vitesseLecture}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="lente">Lente</option>
+                  <option value="normale">Normale</option>
+                  <option value="rapide">Rapide</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Temps Disponible
+                </label>
+                <select
+                  name="tempsDisponible"
+                  value={formData.tempsDisponible}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="10">10 minutes</option>
+                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30">30 minutes</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <label className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="includeGrammaire"
+                  checked={formData.includeGrammaire}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-300">Grammaire</span>
+              </label>
+
+              <label className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="includeConjugaison"
+                  checked={formData.includeConjugaison}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-300">Conjugaison</span>
+              </label>
+
+              <label className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="includeOrthographe"
+                  checked={formData.includeOrthographe}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-500 rounded focus:ring-blue-500"
+                />
+                <span className="text-gray-300">Orthographe</span>
+              </label>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center"
+          >
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative inline-flex items-center justify-center px-8 py-4 text-xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-full overflow-hidden transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="relative flex items-center gap-2">
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Génération en cours...
+                  </>
+                ) : (
+                  <>
+                    <FaMagic className="text-2xl" />
+                    Générer la Dictée
+                  </>
+                )}
+              </span>
+            </button>
+          </motion.div>
+        </form>
       </div>
-    </form>
+    </motion.div>
   );
 } 
