@@ -43,7 +43,7 @@ export default function Home() {
       setIsLoading(true);
       console.log('Envoi des données au serveur:', formData);
       
-      const response = await fetch('/api/dictation/generate', {
+      const response = await fetch('https://dicte-backend.onrender.com/api/dictation/generate/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
