@@ -158,8 +158,17 @@ def generate_dictation(params):
         audio_path = os.path.join(dictations_dir, f'dictation_{timestamp}.mp3')
         audio_url = generate_audio_from_text(result['text'], audio_path)
         
+        # Créer une entrée dans la base de données
+        from .models import Dictation
+        dictation = Dictation.objects.create(
+            text=result['text'],
+            title=result['title'],
+            difficulty=result['difficulty'],
+            audio_url=audio_url
+        )
+        
         return {
-            'id': 14,  # ID temporaire
+            'id': dictation.id,
             'text': result['text'],
             'audio_url': audio_url,
             'title': result['title'],
@@ -180,8 +189,6 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         logger.info(f"Texte reçu dans correct_dictation : {user_text}")
         logger.info(f"Type du texte : {type(user_text)}")
         logger.info(f"Longueur du texte : {len(user_text)}")
-        logger.info(f"Texte après strip : {user_text.strip()}")
-        logger.info(f"Longueur après strip : {len(user_text.strip())}")
         
         # Récupérer la dictée originale
         from .models import Dictation, DictationAttempt
@@ -204,7 +211,7 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         
         # Prompt pour la correction
         prompt = f"""Tu es un professeur de français qui corrige une dictée. 
-        Voici le texte original de la dictée (EXACTEMENT comme il a été lu dans l'audio) :
+        Voici le texte original de la dictée :
         
         {dictation.text}
         
@@ -217,7 +224,7 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         2. Identifier toutes les erreurs (orthographe, grammaire, ponctuation)
         3. Attribuer une note sur 100 en fonction de la qualité du texte
         4. Fournir une liste détaillée des erreurs
-        5. Fournir le texte corrigé EXACTEMENT comme dans l'audio
+        5. Fournir le texte corrigé
         
         Règles de notation :
         - Pour chaque mot manquant : -5 points
@@ -227,53 +234,61 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         - Note minimale : 0
         - Note maximale : 100
         
-        IMPORTANT : 
-        - Le texte corrigé doit être EXACTEMENT le même que le texte original
-        - La note doit être un nombre entier entre 0 et 100
-        - Les erreurs doivent être clairement expliquées
-        - Ne fournis QUE le JSON, sans commentaires ni explications supplémentaires
-        
-        Réponds au format JSON suivant :
+        IMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide au format suivant :
         {{
             "score": <note sur 100>,
             "errors": [
                 "Description de l'erreur 1",
-                "Description de l'erreur 2",
-                ...
+                "Description de l'erreur 2"
             ],
-            "correction": "Texte complet corrigé (EXACTEMENT comme dans l'audio)",
-            "total_words": <nombre total de mots dans le texte original>,
+            "correction": "<texte corrigé>",
+            "total_words": <nombre total de mots>,
             "error_count": <nombre total d'erreurs>
-        }}"""
+        }}
+        """
         
-        # Génération de la correction avec Gemini
+        # Génération de la correction
         response = model.generate_content(prompt)
         
         # Nettoyage et parsing de la réponse JSON
         response_text = response.text.strip()
-        logger.info(f"Réponse brute de Gemini : {response_text}")
-        
         if not response_text.startswith('{'):
             response_text = response_text[response_text.find('{'):]
         if not response_text.endswith('}'):
             response_text = response_text[:response_text.rfind('}')+1]
-            
-        correction_data = json.loads(response_text)
-        logger.info(f"Données de correction : {correction_data}")
         
-        # Sauvegarder la tentative dans la base de données
+        result = json.loads(response_text)
+        
+        # Validation des champs requis
+        required_fields = ['score', 'errors', 'correction', 'total_words', 'error_count']
+        if not all(field in result for field in required_fields):
+            raise ValueError("Réponse JSON incomplète")
+        
+        # Créer une tentative
         attempt = DictationAttempt.objects.create(
             dictation=dictation,
             user_text=user_text,
-            score=correction_data['score'],
-            feedback=json.dumps(correction_data)
+            score=result['score'],
+            feedback=json.dumps(result['errors'])
         )
         
-        return {
-            **correction_data,
-            'attempt_id': attempt.id
-        }
+        return result
         
+    except json.JSONDecodeError as e:
+        logger.error(f"Erreur de parsing JSON : {str(e)}")
+        return {
+            'score': 0,
+            'errors': ['Erreur lors de la correction'],
+            'correction': dictation.text,
+            'total_words': len(dictation.text.split()),
+            'error_count': len(dictation.text.split())
+        }
     except Exception as e:
-        logger.error(f"Erreur lors de la correction de la dictée : {str(e)}")
-        raise 
+        logger.error(f"Erreur lors de la correction : {str(e)}")
+        return {
+            'score': 0,
+            'errors': [str(e)],
+            'correction': dictation.text,
+            'total_words': len(dictation.text.split()),
+            'error_count': len(dictation.text.split())
+        } 
