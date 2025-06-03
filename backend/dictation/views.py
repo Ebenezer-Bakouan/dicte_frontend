@@ -182,6 +182,9 @@ def correct_dictation_view(request):
     logger.info("Début de la correction de la dictée")
     if request.method == 'POST':
         try:
+            # Log du corps brut de la requête
+            logger.info(f"Corps brut de la requête: {request.body}")
+            
             data = json.loads(request.body)
             logger.info(f"Données reçues : {data}")
             
@@ -208,6 +211,19 @@ def correct_dictation_view(request):
                     'error': 'ID de dictée manquant',
                     'score': 0,
                     'errors': ['ID de dictée manquant'],
+                    'correction': '',
+                    'total_words': 0,
+                    'error_count': 0
+                }, status=400)
+            
+            try:
+                dictation_id = int(dictation_id)
+            except (TypeError, ValueError):
+                logger.error(f"ID de dictée invalide : {dictation_id}")
+                return JsonResponse({
+                    'error': 'ID de dictée invalide',
+                    'score': 0,
+                    'errors': ['ID de dictée invalide'],
                     'correction': '',
                     'total_words': 0,
                     'error_count': 0

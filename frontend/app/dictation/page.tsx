@@ -117,12 +117,13 @@ export default function DictationPage() {
         user_text: userText.trim(),
         dictation_id: currentDictationId 
       };
-      console.log('Corps de la requête:', requestBody);
+      console.log('Corps de la requête:', JSON.stringify(requestBody, null, 2));
       
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(requestBody),
       });
@@ -132,7 +133,14 @@ export default function DictationPage() {
       console.log('Réponse brute du serveur:', responseText);
 
       if (!response.ok) {
-        throw new Error(`Erreur lors de la correction de la dictée: ${responseText}`);
+        let errorMessage = 'Erreur lors de la correction de la dictée';
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          console.error('Erreur lors du parsing de la réponse:', e);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = JSON.parse(responseText);
