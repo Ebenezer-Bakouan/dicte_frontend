@@ -97,7 +97,9 @@ export default function DictationPage() {
     try {
       setIsLoading(true);
       if (!currentDictationId) {
-        throw new Error('ID de dictée manquant');
+        console.error('ID de dictée manquant');
+        alert('Erreur : ID de dictée manquant');
+        return;
       }
       
       console.log('Texte reçu de DictationPlayer:', userText);
@@ -105,8 +107,14 @@ export default function DictationPage() {
       console.log('Longueur du texte:', userText.length);
       console.log('ID de la dictée:', currentDictationId);
       
+      if (!userText.trim()) {
+        console.error('Texte vide');
+        alert('Veuillez écrire votre dictée avant de la soumettre.');
+        return;
+      }
+      
       const requestBody = { 
-        user_text: userText,
+        user_text: userText.trim(),
         dictation_id: currentDictationId 
       };
       console.log('Corps de la requête:', requestBody);
@@ -129,11 +137,16 @@ export default function DictationPage() {
 
       const data = JSON.parse(responseText);
       console.log('Données de correction:', data);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
       setResults(data);
       setStep('results');
     } catch (error) {
       console.error('Erreur détaillée:', error);
-      alert('Une erreur est survenue lors de la correction de la dictée');
+      alert(error instanceof Error ? error.message : 'Une erreur est survenue lors de la correction de la dictée');
     } finally {
       setIsLoading(false);
     }
