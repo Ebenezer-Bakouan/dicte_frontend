@@ -100,6 +100,8 @@ export default function DictationPage() {
         throw new Error('ID de dictée manquant');
       }
       
+      console.log('Envoi du texte pour correction:', userText);
+      
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
@@ -116,6 +118,7 @@ export default function DictationPage() {
       }
 
       const data = await response.json();
+      console.log('Réponse de correction:', data);
       setResults(data);
       setStep('results');
     } catch (error) {
@@ -123,7 +126,7 @@ export default function DictationPage() {
       alert('Une erreur est survenue lors de la correction de la dictée');
     } finally {
       setIsLoading(false);
-      }
+    }
   };
 
   const handleRestart = () => {

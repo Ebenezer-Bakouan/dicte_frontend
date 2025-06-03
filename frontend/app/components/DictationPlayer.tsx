@@ -90,7 +90,11 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
   };
 
   const handleSubmit = () => {
-    onComplete(userText);
+    if (!userText.trim()) {
+      alert('Veuillez écrire votre dictée avant de la soumettre.');
+      return;
+    }
+    onComplete(userText.trim());
   };
 
   return (
