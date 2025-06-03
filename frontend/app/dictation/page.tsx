@@ -100,29 +100,39 @@ export default function DictationPage() {
         throw new Error('ID de dictée manquant');
       }
       
-      console.log('Envoi du texte pour correction:', userText);
+      console.log('Texte reçu de DictationPlayer:', userText);
+      console.log('Type du texte:', typeof userText);
+      console.log('Longueur du texte:', userText.length);
+      console.log('ID de la dictée:', currentDictationId);
+      
+      const requestBody = { 
+        user_text: userText,
+        dictation_id: currentDictationId 
+      };
+      console.log('Corps de la requête:', requestBody);
       
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          user_text: userText,
-          dictation_id: currentDictationId 
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('Statut de la réponse:', response.status);
+      const responseText = await response.text();
+      console.log('Réponse brute du serveur:', responseText);
+
       if (!response.ok) {
-        throw new Error('Erreur lors de la correction de la dictée');
+        throw new Error(`Erreur lors de la correction de la dictée: ${responseText}`);
       }
 
-      const data = await response.json();
-      console.log('Réponse de correction:', data);
+      const data = JSON.parse(responseText);
+      console.log('Données de correction:', data);
       setResults(data);
       setStep('results');
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Erreur détaillée:', error);
       alert('Une erreur est survenue lors de la correction de la dictée');
     } finally {
       setIsLoading(false);

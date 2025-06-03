@@ -90,6 +90,12 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
   };
 
   const handleSubmit = () => {
+    console.log('Texte avant soumission:', userText);
+    console.log('Type du texte:', typeof userText);
+    console.log('Longueur du texte:', userText.length);
+    console.log('Texte après trim:', userText.trim());
+    console.log('Longueur après trim:', userText.trim().length);
+    
     if (!userText.trim()) {
       alert('Veuillez écrire votre dictée avant de la soumettre.');
       return;
