@@ -38,6 +38,7 @@ export default function DictationPage() {
     errors: string[];
     correction: string;
   } | null>(null);
+  const [currentDictationId, setCurrentDictationId] = useState<number | null>(null);
 
   const handleFormSubmit = async (formData: DictationFormData) => {
     try {
@@ -62,6 +63,7 @@ export default function DictationPage() {
       if (responseData.audio_url) {
         const audioPath = responseData.audio_url;
         console.log('Chemin de l\'audio:', audioPath);
+        setCurrentDictationId(responseData.id);
 
         // Vérifier si le fichier audio est accessible
         try {
@@ -94,12 +96,19 @@ export default function DictationPage() {
   const handleDictationComplete = async (userText: string) => {
     try {
       setIsLoading(true);
+      if (!currentDictationId) {
+        throw new Error('ID de dictée manquant');
+      }
+      
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: userText }),
+        body: JSON.stringify({ 
+          text: userText,
+          dictation_id: currentDictationId 
+        }),
       });
 
       if (!response.ok) {
