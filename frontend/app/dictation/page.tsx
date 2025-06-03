@@ -81,10 +81,10 @@ export default function DictationPage() {
           console.error('Erreur détaillée:', error);
           throw error;
         }
-      } else {
+    } else {
         console.error('Pas de fichier audio dans la réponse');
         throw new Error('Pas de fichier audio dans la réponse');
-      }
+    }
     } catch (error) {
       console.error('Erreur:', error);
       alert('Une erreur est survenue lors de la génération de la dictée');
@@ -123,7 +123,7 @@ export default function DictationPage() {
       alert('Une erreur est survenue lors de la correction de la dictée');
     } finally {
       setIsLoading(false);
-    }
+      }
   };
 
   const handleRestart = () => {
@@ -149,10 +149,10 @@ export default function DictationPage() {
               >
                 Nouvelle Dictée
               </button>
+                  </div>
+                </>
+              )}
             </div>
-          </>
-        )}
-      </div>
     </main>
   );
-} 
+}

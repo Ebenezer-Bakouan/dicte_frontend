@@ -99,48 +99,20 @@ def generate_dictation(params):
         - Objectif d'apprentissage : {objectif}
         - Difficultés spécifiques : {difficultes}
         - Durée estimée : {temps} minutes
-        - Sujet : {params.get('sujet', 'général')}
-        - Type de contenu : {params.get('typeContenu', 'narratif')}
 
         Règles pour le texte :
         1. Texte COHÉRENT et NATUREL
-        2. AUCUN marqueur de formatage ou astérisques
-        3. Répétition des phrases :
-           - Phrases longues (>10 mots) : répétées 3 fois
-           - Phrases courtes (≤10 mots) : répétées 2 fois
-        4. Longueur du texte :
-           - Court : 7 lignes
-           - Moyen : 10 lignes
-           - Long : 15 lignes
-        5. Vocabulaire :
-           - Court : mots courants avec quelques mots plus rares
-           - Moyen : mélange de mots courants et de mots plus sophistiqués
-           - Long : vocabulaire riche et varié avec des mots plus rares
-        6. Phrases :
-           - Court : phrases simples et courtes
-           - Moyen : mélange de phrases simples et complexes
-           - Long : phrases plus complexes avec des subordonnées
-        7. Points grammaticaux à inclure :
-           - Accords sujet-verbe
-           - Accords des participes passés
-           - Homophones courants
-           - Ponctuation
-           - Conjugaisons variées
-
-        IMPORTANT : 
-        - Crée un texte UNIQUE et ORIGINAL
-        - Varie les sujets et les situations
-        - Utilise différents types de narrations (description, dialogue, récit)
-        - Inclus des éléments culturels français variés
-        - Adapte le style selon le sujet choisi
+        2. AUCUN marqueur de formatage
+        3. Phrases longues (>10 mots) répétées 3 fois
+        4. Phrases courtes (≤10 mots) répétées 2 fois
+        5. Vocabulaire adapté au niveau
+        6. Phrases simples et claires
 
         Format de réponse OBLIGATOIRE (réponds UNIQUEMENT avec ce JSON) :
         {{
-            "text": "Le texte de la dictée sans répétitions ni marqueurs",
+            "text": "Le texte de la dictée avec les répétitions. Exemple : 'Le chat dort. Le chat dort. La souris mange du fromage. La souris mange du fromage.'",
             "title": "Titre court et descriptif",
-            "difficulty": "facile|moyen|difficile",
-            "vocabulary_notes": "Liste des mots difficiles ou rares utilisés avec leur définition",
-            "grammar_points": "Liste des points grammaticaux principaux abordés"
+            "difficulty": "facile"
         }}
         """
         
@@ -160,7 +132,7 @@ def generate_dictation(params):
             result = json.loads(response_text)
             
             # Validation des champs requis
-            required_fields = ['text', 'title', 'difficulty', 'vocabulary_notes', 'grammar_points']
+            required_fields = ['text', 'title', 'difficulty']
             if not all(field in result for field in required_fields):
                 raise ValueError("Réponse JSON incomplète")
                 
@@ -191,9 +163,7 @@ def generate_dictation(params):
             'text': result['text'],
             'audio_url': audio_url,
             'title': result['title'],
-            'difficulty': result['difficulty'],
-            'vocabulary_notes': result['vocabulary_notes'],
-            'grammar_points': result['grammar_points']
+            'difficulty': result['difficulty']
         }
         
     except Exception as e:
@@ -206,12 +176,20 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
     Retourne un dictionnaire contenant la note, les erreurs et la correction.
     """
     try:
+        # Log pour déboguer
+        logger.info(f"Texte reçu dans correct_dictation : {user_text}")
+        logger.info(f"Type du texte : {type(user_text)}")
+        logger.info(f"Longueur du texte : {len(user_text)}")
+        logger.info(f"Texte après strip : {user_text.strip()}")
+        logger.info(f"Longueur après strip : {len(user_text.strip())}")
+        
         # Récupérer la dictée originale
         from .models import Dictation, DictationAttempt
         dictation = Dictation.objects.get(id=dictation_id)
         
         # Vérification STRICTE du texte vide
         if not user_text or not user_text.strip():
+            logger.warning("Texte vide détecté")
             result = {
                 'score': 0,
                 'errors': ['Le texte est vide. Veuillez écrire la dictée.'],
@@ -235,6 +213,7 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         
         # Vérification de la longueur minimale
         if len(user_text.strip()) < len(dictation.text) * 0.1:
+            logger.warning(f"Texte trop court : {len(user_text.strip())} < {len(dictation.text) * 0.1}")
             result = {
                 'score': 0,
                 'errors': ['Le texte est trop court. Veuillez écrire la dictée complète.'],
@@ -262,7 +241,7 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         
         # Prompt pour la correction
         prompt = f"""Tu es un professeur de français qui corrige une dictée. 
-        Voici le texte original de la dictée :
+        Voici le texte original de la dictée (EXACTEMENT comme il a été lu dans l'audio) :
         
         {dictation.text}
         
@@ -271,17 +250,19 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         {user_text}
         
         Ta tâche est de :
-        1. Comparer le texte avec la dictée originale
+        1. Comparer le texte avec la dictée originale MOT POUR MOT
         2. Identifier toutes les erreurs (orthographe, grammaire, ponctuation)
         3. Attribuer une note sur 100 en fonction de la qualité du texte
         4. Fournir une liste détaillée des erreurs
-        5. Fournir le texte corrigé
+        5. Fournir le texte corrigé EXACTEMENT comme dans l'audio
         
         Règles de notation :
         - Pour chaque mot manquant : -5 points
         - Pour chaque erreur d'orthographe : -2 points
         - Pour chaque erreur de grammaire : -3 points
         - Pour chaque erreur de ponctuation : -1 point
+        
+        IMPORTANT : Le texte corrigé doit être EXACTEMENT le même que le texte original, sans aucune modification.
         
         Réponds au format JSON suivant :
         {{
@@ -291,7 +272,7 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
                 "Description de l'erreur 2",
                 ...
             ],
-            "correction": "Texte complet corrigé",
+            "correction": "Texte complet corrigé (EXACTEMENT comme dans l'audio)",
             "total_words": <nombre total de mots dans le texte original>,
             "error_count": <nombre total d'erreurs>
         }}
