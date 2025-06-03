@@ -99,6 +99,8 @@ def generate_dictation(params):
         - Objectif d'apprentissage : {objectif}
         - Difficultés spécifiques : {difficultes}
         - Durée estimée : {temps} minutes
+        - Sujet : {params.get('sujet', 'général')}
+        - Type de contenu : {params.get('typeContenu', 'narratif')}
 
         Règles pour le texte :
         1. Texte COHÉRENT et NATUREL
@@ -125,12 +127,20 @@ def generate_dictation(params):
            - Ponctuation
            - Conjugaisons variées
 
+        IMPORTANT : 
+        - Crée un texte UNIQUE et ORIGINAL
+        - Varie les sujets et les situations
+        - Utilise différents types de narrations (description, dialogue, récit)
+        - Inclus des éléments culturels français variés
+        - Adapte le style selon le sujet choisi
+
         Format de réponse OBLIGATOIRE (réponds UNIQUEMENT avec ce JSON) :
         {{
             "text": "Le texte de la dictée sans répétitions ni marqueurs",
             "title": "Titre court et descriptif",
             "difficulty": "facile|moyen|difficile",
-            "vocabulary_notes": "Liste des mots difficiles ou rares utilisés avec leur définition"
+            "vocabulary_notes": "Liste des mots difficiles ou rares utilisés avec leur définition",
+            "grammar_points": "Liste des points grammaticaux principaux abordés"
         }}
         """
         
@@ -150,7 +160,7 @@ def generate_dictation(params):
             result = json.loads(response_text)
             
             # Validation des champs requis
-            required_fields = ['text', 'title', 'difficulty', 'vocabulary_notes']
+            required_fields = ['text', 'title', 'difficulty', 'vocabulary_notes', 'grammar_points']
             if not all(field in result for field in required_fields):
                 raise ValueError("Réponse JSON incomplète")
                 
@@ -182,7 +192,8 @@ def generate_dictation(params):
             'audio_url': audio_url,
             'title': result['title'],
             'difficulty': result['difficulty'],
-            'vocabulary_notes': result['vocabulary_notes']
+            'vocabulary_notes': result['vocabulary_notes'],
+            'grammar_points': result['grammar_points']
         }
         
     except Exception as e:
