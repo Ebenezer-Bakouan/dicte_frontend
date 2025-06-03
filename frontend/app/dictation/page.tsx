@@ -97,20 +97,7 @@ export default function DictationPage() {
     try {
       setIsLoading(true);
       if (!currentDictationId) {
-        console.error('ID de dictée manquant');
-        alert('Erreur : ID de dictée manquant');
-        return;
-      }
-      
-      console.log('Texte reçu de DictationPlayer:', userText);
-      console.log('Type du texte:', typeof userText);
-      console.log('Longueur du texte:', userText.length);
-      console.log('ID de la dictée:', currentDictationId);
-      
-      if (!userText.trim()) {
-        console.error('Texte vide');
-        alert('Veuillez écrire votre dictée avant de la soumettre.');
-        return;
+        throw new Error('ID de dictée manquant');
       }
       
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
@@ -124,33 +111,16 @@ export default function DictationPage() {
         }),
       });
 
-      console.log('Statut de la réponse:', response.status);
-      const responseText = await response.text();
-      console.log('Réponse brute du serveur:', responseText);
-
       if (!response.ok) {
-        let errorMessage = 'Erreur lors de la correction de la dictée';
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          console.error('Erreur lors du parsing de la réponse:', e);
-        }
-        throw new Error(errorMessage);
+        throw new Error('Erreur lors de la correction de la dictée');
       }
 
-      const data = JSON.parse(responseText);
-      console.log('Données de correction:', data);
-      
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      
+      const data = await response.json();
       setResults(data);
       setStep('results');
     } catch (error) {
-      console.error('Erreur détaillée:', error);
-      alert(error instanceof Error ? error.message : 'Une erreur est survenue lors de la correction de la dictée');
+      console.error('Erreur:', error);
+      alert('Une erreur est survenue lors de la correction de la dictée');
     } finally {
       setIsLoading(false);
     }
