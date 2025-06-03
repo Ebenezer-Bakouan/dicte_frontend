@@ -137,7 +137,11 @@ export default function DictationPage() {
       <div className="container mx-auto px-4">
         {step === 'form' && <DictationForm onSubmit={handleFormSubmit} isLoading={isLoading} />}
         {step === 'player' && audioUrl && (
-          <DictationPlayer audioUrl={audioUrl} onComplete={handleDictationComplete} />
+          <DictationPlayer 
+            audioUrl={audioUrl} 
+            onComplete={handleDictationComplete}
+            dictationId={currentDictationId}
+          />
         )}
         {step === 'results' && results && (
           <>

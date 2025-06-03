@@ -7,9 +7,10 @@ import { Play, Pause, RotateCcw, Volume2, VolumeX, Mic } from 'lucide-react';
 interface DictationPlayerProps {
   audioUrl: string;
   onComplete: (text: string) => void;
+  dictationId: number | null;
 }
 
-export default function DictationPlayer({ audioUrl, onComplete }: DictationPlayerProps) {
+export default function DictationPlayer({ audioUrl, onComplete, dictationId }: DictationPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
