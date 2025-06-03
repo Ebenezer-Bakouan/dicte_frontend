@@ -106,7 +106,7 @@ export default function DictationPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          text: userText,
+          user_text: userText,
           dictation_id: currentDictationId 
         }),
       });

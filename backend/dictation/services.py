@@ -180,8 +180,6 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         logger.info(f"Texte reçu dans correct_dictation : {user_text}")
         logger.info(f"Type du texte : {type(user_text)}")
         logger.info(f"Longueur du texte : {len(user_text)}")
-        logger.info(f"Texte après strip : {user_text.strip()}")
-        logger.info(f"Longueur après strip : {len(user_text.strip())}")
         
         # Récupérer la dictée originale
         from .models import Dictation, DictationAttempt
@@ -190,53 +188,16 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         # Vérification STRICTE du texte vide
         if not user_text or not user_text.strip():
             logger.warning("Texte vide détecté")
-            result = {
+            return {
                 'score': 0,
                 'errors': ['Le texte est vide. Veuillez écrire la dictée.'],
                 'correction': dictation.text,
                 'total_words': len(dictation.text.split()),
                 'error_count': len(dictation.text.split())
             }
-            
-            # Sauvegarder la tentative dans la base de données
-            attempt = DictationAttempt.objects.create(
-                dictation=dictation,
-                user_text=user_text,
-                score=0,
-                feedback=json.dumps(result)
-            )
-            
-            return {
-                **result,
-                'attempt_id': attempt.id
-            }
-        
-        # Vérification de la longueur minimale
-        if len(user_text.strip()) < len(dictation.text) * 0.1:
-            logger.warning(f"Texte trop court : {len(user_text.strip())} < {len(dictation.text) * 0.1}")
-            result = {
-                'score': 0,
-                'errors': ['Le texte est trop court. Veuillez écrire la dictée complète.'],
-                'correction': dictation.text,
-                'total_words': len(dictation.text.split()),
-                'error_count': len(dictation.text.split())
-            }
-            
-            # Sauvegarder la tentative dans la base de données
-            attempt = DictationAttempt.objects.create(
-                dictation=dictation,
-                user_text=user_text,
-                score=0,
-                feedback=json.dumps(result)
-            )
-            
-            return {
-                **result,
-                'attempt_id': attempt.id
-            }
         
         # Configuration de Gemini
-        genai.configure(api_key='AIzaSyDyCb6Lp9S-sOlMUMVrhwAHfeAiG6poQGI')
+        configure_gemini_api()
         model = genai.GenerativeModel('gemini-pro')
         
         # Prompt pour la correction
@@ -261,8 +222,14 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         - Pour chaque erreur d'orthographe : -2 points
         - Pour chaque erreur de grammaire : -3 points
         - Pour chaque erreur de ponctuation : -1 point
+        - Note minimale : 0
+        - Note maximale : 100
         
-        IMPORTANT : Le texte corrigé doit être EXACTEMENT le même que le texte original, sans aucune modification.
+        IMPORTANT : 
+        - Le texte corrigé doit être EXACTEMENT le même que le texte original
+        - La note doit être un nombre entier entre 0 et 100
+        - Les erreurs doivent être clairement expliquées
+        - Ne fournis QUE le JSON, sans commentaires ni explications supplémentaires
         
         Réponds au format JSON suivant :
         {{
@@ -275,13 +242,19 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
             "correction": "Texte complet corrigé (EXACTEMENT comme dans l'audio)",
             "total_words": <nombre total de mots dans le texte original>,
             "error_count": <nombre total d'erreurs>
-        }}
-        
-        IMPORTANT : Ne fournis QUE le JSON, sans commentaires ni explications supplémentaires."""
+        }}"""
         
         # Génération de la correction avec Gemini
         response = model.generate_content(prompt)
-        correction_data = json.loads(response.text)
+        
+        # Nettoyage et parsing de la réponse JSON
+        response_text = response.text.strip()
+        if not response_text.startswith('{'):
+            response_text = response_text[response_text.find('{'):]
+        if not response_text.endswith('}'):
+            response_text = response_text[:response_text.rfind('}')+1]
+            
+        correction_data = json.loads(response_text)
         
         # Sauvegarder la tentative dans la base de données
         attempt = DictationAttempt.objects.create(
