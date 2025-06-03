@@ -180,6 +180,8 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         logger.info(f"Texte reçu dans correct_dictation : {user_text}")
         logger.info(f"Type du texte : {type(user_text)}")
         logger.info(f"Longueur du texte : {len(user_text)}")
+        logger.info(f"Texte après strip : {user_text.strip()}")
+        logger.info(f"Longueur après strip : {len(user_text.strip())}")
         
         # Récupérer la dictée originale
         from .models import Dictation, DictationAttempt
@@ -249,12 +251,15 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         
         # Nettoyage et parsing de la réponse JSON
         response_text = response.text.strip()
+        logger.info(f"Réponse brute de Gemini : {response_text}")
+        
         if not response_text.startswith('{'):
             response_text = response_text[response_text.find('{'):]
         if not response_text.endswith('}'):
             response_text = response_text[:response_text.rfind('}')+1]
             
         correction_data = json.loads(response_text)
+        logger.info(f"Données de correction : {correction_data}")
         
         # Sauvegarder la tentative dans la base de données
         attempt = DictationAttempt.objects.create(
