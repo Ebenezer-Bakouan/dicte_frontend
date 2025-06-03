@@ -94,9 +94,9 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 relative overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-y-auto">
       {/* Floating elements background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -115,9 +115,9 @@ export default function DictationPlayer({ audioUrl, onComplete }: DictationPlaye
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto relative z-10"
+        className="min-h-screen w-full max-w-4xl mx-auto relative z-10 p-4 flex flex-col"
       >
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
+        <div className="flex-1 bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
           {/* Header avec effet 3D */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
