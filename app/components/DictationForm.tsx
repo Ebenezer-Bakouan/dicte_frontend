@@ -42,9 +42,9 @@ export default function DictationForm({ onSubmit = () => {}, isLoading = false }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 relative overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-y-auto">
       {/* Floating elements background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -59,7 +59,7 @@ export default function DictationForm({ onSubmit = () => {}, isLoading = false }
         ))}
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="min-h-screen w-full max-w-6xl mx-auto relative z-10 p-4">
         {/* Header Section with 3D effect */}
         <div className="text-center mb-12 transform perspective-1000">
           <div 
