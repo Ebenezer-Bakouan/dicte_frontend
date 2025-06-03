@@ -113,19 +113,15 @@ export default function DictationPage() {
         return;
       }
       
-      const requestBody = { 
-        user_text: userText.trim(),
-        dictation_id: currentDictationId 
-      };
-      console.log('Corps de la requête:', JSON.stringify(requestBody, null, 2));
-      
       const response = await fetch('https://dicte-backend.onrender.com/api/dictation/correct/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({ 
+          user_text: userText,
+          dictation_id: currentDictationId 
+        }),
       });
 
       console.log('Statut de la réponse:', response.status);
