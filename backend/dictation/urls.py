@@ -11,10 +11,14 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/register/', auth_views.register_user, name='register'),
     path('auth/profile/', auth_views.get_user_profile, name='profile'),
+    path('auth/login/', auth_views.login_user, name='login'),
     
     # Routes existantes
     path('dictation/generate/', views.generate_dictation_view, name='generate_dictation'),
     path('dictation/correct/', views.correct_dictation_view, name='correct_dictation'),
+    path('dictations/', views.dictation_list, name='dictation-list'),
+    path('dictations/<int:pk>/', views.dictation_detail, name='dictation-detail'),
+    path('dictations/<int:pk>/attempt/', views.create_attempt, name='create-attempt'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Pour le débogage
