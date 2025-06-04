@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import DictationForm from '../components/DictationForm';
 import DictationPlayer from '../components/DictationPlayer';
 import DictationResults from '../components/DictationResults';
+import AuthGuard from '../components/AuthGuard';
 
 interface DictationFormData {
   age: string;
@@ -135,26 +136,28 @@ export default function DictationPage(): React.JSX.Element {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 py-8">
-      <div className="container mx-auto px-4">
-        {step === 'form' && <DictationForm onSubmit={handleFormSubmit} isLoading={isLoading} />}
-        {step === 'player' && audioUrl && (
-          <DictationPlayer audioUrl={audioUrl} onComplete={handleDictationComplete} />
-        )}
-        {step === 'results' && results && (
-          <React.Fragment>
-            <DictationResults {...results} />
-            <div className="mt-6 text-center">
-              <button
-                onClick={handleRestart}
-                className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-              >
-                Nouvelle Dictée
-              </button>
-            </div>
-          </React.Fragment>
-        )}
-      </div>
-    </main>
+    <AuthGuard>
+      <main className="min-h-screen bg-gray-100 py-8">
+        <div className="container mx-auto px-4">
+          {step === 'form' && <DictationForm onSubmit={handleFormSubmit} isLoading={isLoading} />}
+          {step === 'player' && audioUrl && (
+            <DictationPlayer audioUrl={audioUrl} onComplete={handleDictationComplete} />
+          )}
+          {step === 'results' && results && (
+            <React.Fragment>
+              <DictationResults {...results} />
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleRestart}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                >
+                  Nouvelle Dictée
+                </button>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+      </main>
+    </AuthGuard>
   );
 } 
