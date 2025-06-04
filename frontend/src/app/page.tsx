@@ -124,7 +124,7 @@ export default function Home() {
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <span className="relative flex items-center gap-2">
               <FaPenFancy className="text-2xl" />
-          Commencer la dictée
+              Commencer la dictée
             </span>
           </motion.button>
         </motion.div>

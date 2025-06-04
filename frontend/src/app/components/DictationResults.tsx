@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, AlertCircle, Star } from 'lucide-react';
 
@@ -9,16 +10,16 @@ interface DictationResultsProps {
   correction: string;
 }
 
-export default function DictationResults({ score, errors, correction }: DictationResultsProps) {
-  const getScoreColor = () => {
-    if (score >= 90) return 'text-green-400';
-    if (score >= 70) return 'text-yellow-400';
-    return 'text-red-400';
+export default function DictationResults({ score, errors, correction }: DictationResultsProps): React.JSX.Element {
+  const getScoreColor = (): string => {
+    if (score >= 80) return 'text-green-500';
+    if (score >= 60) return 'text-yellow-500';
+    return 'text-red-500';
   };
 
-  const getScoreMessage = () => {
-    if (score >= 90) return 'Excellent !';
-    if (score >= 70) return 'Bien !';
+  const getScoreMessage = (): string => {
+    if (score >= 80) return 'Excellent !';
+    if (score >= 60) return 'Bien !';
     return 'À améliorer';
   };
 
@@ -106,7 +107,7 @@ export default function DictationResults({ score, errors, correction }: Dictatio
               Texte corrigé
             </h3>
             <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-              <p className="text-gray-300 whitespace-pre-wrap">{correction}</p>
+              <p className="text-gray-300 whitespace-pre-wrap">{correction || 'Aucune correction disponible'}</p>
             </div>
           </motion.div>
         </div>

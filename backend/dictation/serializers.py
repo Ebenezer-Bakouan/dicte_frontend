@@ -4,7 +4,7 @@ from .models import Dictation, DictationAttempt
 class DictationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dictation
-        fields = ['id', 'title', 'text', 'difficulty', 'created_at', 'audio_file']
+        fields = ['id', 'title', 'text', 'difficulty', 'created_at', 'audio_file', 'audio_url']
 
 class DictationAttemptSerializer(serializers.ModelSerializer):
     class Meta:

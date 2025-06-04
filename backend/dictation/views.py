@@ -182,20 +182,15 @@ def correct_dictation_view(request):
     logger.info("Début de la correction de la dictée")
     if request.method == 'POST':
         try:
-            # Log du corps brut de la requête
-            logger.info(f"Corps brut de la requête: {request.body}")
-            
             data = json.loads(request.body)
-            logger.info(f"Données reçues : {data}")
-            
-            user_text = data.get('user_text', '')
+            user_text = data.get('user_text', '').strip()
             dictation_id = data.get('dictation_id')
             
-            logger.info(f"Texte reçu : {user_text}")
-            logger.info(f"ID de dictée : {dictation_id}")
+            # Validation des données
+            if not dictation_id:
+                return JsonResponse({'error': 'dictation_id est requis'}, status=400)
             
             if not user_text:
-                logger.error("Texte vide reçu")
                 return JsonResponse({
                     'error': 'Le texte est vide',
                     'score': 0,
@@ -203,31 +198,9 @@ def correct_dictation_view(request):
                     'correction': '',
                     'total_words': 0,
                     'error_count': 0
-                }, status=400)
-                
-            if not dictation_id:
-                logger.error("ID de dictée manquant")
-                return JsonResponse({
-                    'error': 'ID de dictée manquant',
-                    'score': 0,
-                    'errors': ['ID de dictée manquant'],
-                    'correction': '',
-                    'total_words': 0,
-                    'error_count': 0
-                }, status=400)
+                }, status=200)
             
-            try:
-                dictation_id = int(dictation_id)
-            except (TypeError, ValueError):
-                logger.error(f"ID de dictée invalide : {dictation_id}")
-                return JsonResponse({
-                    'error': 'ID de dictée invalide',
-                    'score': 0,
-                    'errors': ['ID de dictée invalide'],
-                    'correction': '',
-                    'total_words': 0,
-                    'error_count': 0
-                }, status=400)
+            logger.info(f"Texte reçu pour la dictée {dictation_id}: {user_text}")
             
             # Utiliser la fonction correct_dictation du service
             result = correct_dictation(user_text, dictation_id)
@@ -235,24 +208,10 @@ def correct_dictation_view(request):
             
             return JsonResponse(result)
             
-        except json.JSONDecodeError as e:
-            logger.error(f"Erreur de décodage JSON : {str(e)}")
-            return JsonResponse({
-                'error': 'Format de données invalide',
-                'score': 0,
-                'errors': ['Format de données invalide'],
-                'correction': '',
-                'total_words': 0,
-                'error_count': 0
-            }, status=400)
+        except Dictation.DoesNotExist:
+            logger.error(f"Dictée {dictation_id} non trouvée")
+            return JsonResponse({'error': 'Dictée non trouvée'}, status=404)
         except Exception as e:
             logger.error(f"Erreur lors de la correction de la dictée : {str(e)}")
-            return JsonResponse({
-                'error': str(e),
-                'score': 0,
-                'errors': [str(e)],
-                'correction': '',
-                'total_words': 0,
-                'error_count': 0
-            }, status=400)
+            return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)

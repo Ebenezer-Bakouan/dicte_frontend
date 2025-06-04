@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import DictationForm from '../components/DictationForm';
 import DictationPlayer from '../components/DictationPlayer';
 import DictationResults from '../components/DictationResults';
@@ -29,18 +29,20 @@ interface DictationResponse {
   difficulty: string;
 }
 
-export default function DictationPage() {
+interface DictationResults {
+  score: number;
+  errors: string[];
+  correction: string;
+}
+
+export default function DictationPage(): React.JSX.Element {
   const [step, setStep] = useState<'form' | 'player' | 'results'>('form');
-  const [audioUrl, setAudioUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<{
-    score: number;
-    errors: string[];
-    correction: string;
-  } | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [results, setResults] = useState<DictationResults | null>(null);
   const [currentDictationId, setCurrentDictationId] = useState<number | null>(null);
 
-  const handleFormSubmit = async (formData: DictationFormData) => {
+  const handleFormSubmit = async (formData: DictationFormData): Promise<void> => {
     try {
       setIsLoading(true);
       console.log('Envoi des données au serveur:', formData);
@@ -57,7 +59,7 @@ export default function DictationPage() {
         throw new Error('Erreur lors de la génération de la dictée');
       }
 
-      const responseData = await response.json();
+      const responseData: DictationResponse = await response.json();
       console.log('Réponse complète du serveur:', responseData);
 
       if (responseData.audio_url) {
@@ -81,10 +83,10 @@ export default function DictationPage() {
           console.error('Erreur détaillée:', error);
           throw error;
         }
-    } else {
+      } else {
         console.error('Pas de fichier audio dans la réponse');
         throw new Error('Pas de fichier audio dans la réponse');
-    }
+      }
     } catch (error) {
       console.error('Erreur:', error);
       alert('Une erreur est survenue lors de la génération de la dictée');
@@ -93,7 +95,7 @@ export default function DictationPage() {
     }
   };
 
-  const handleDictationComplete = async (userText: string) => {
+  const handleDictationComplete = async (userText: string): Promise<void> => {
     try {
       setIsLoading(true);
       if (!currentDictationId) {
@@ -115,7 +117,7 @@ export default function DictationPage() {
         throw new Error('Erreur lors de la correction de la dictée');
       }
 
-      const data = await response.json();
+      const data: DictationResults = await response.json();
       setResults(data);
       setStep('results');
     } catch (error) {
@@ -126,7 +128,7 @@ export default function DictationPage() {
     }
   };
 
-  const handleRestart = () => {
+  const handleRestart = (): void => {
     setStep('form');
     setAudioUrl('');
     setResults(null);
@@ -137,14 +139,10 @@ export default function DictationPage() {
       <div className="container mx-auto px-4">
         {step === 'form' && <DictationForm onSubmit={handleFormSubmit} isLoading={isLoading} />}
         {step === 'player' && audioUrl && (
-          <DictationPlayer 
-            audioUrl={audioUrl} 
-            onComplete={handleDictationComplete}
-            dictationId={currentDictationId}
-          />
+          <DictationPlayer audioUrl={audioUrl} onComplete={handleDictationComplete} />
         )}
         {step === 'results' && results && (
-          <>
+          <React.Fragment>
             <DictationResults {...results} />
             <div className="mt-6 text-center">
               <button
@@ -153,10 +151,10 @@ export default function DictationPage() {
               >
                 Nouvelle Dictée
               </button>
-                  </div>
-                </>
-              )}
             </div>
+          </React.Fragment>
+        )}
+      </div>
     </main>
   );
-}
+} 

@@ -14,6 +14,7 @@ class Dictation(models.Model):
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     audio_file = models.FileField(upload_to='dictations/', null=True, blank=True)
+    audio_url = models.URLField(max_length=500, null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -21,6 +22,7 @@ class Dictation(models.Model):
 class DictationAttempt(models.Model):
     dictation = models.ForeignKey(Dictation, on_delete=models.CASCADE, related_name='attempts')
     user_text = models.TextField()
+    corrected_text = models.TextField(null=True, blank=True)
     score = models.FloatField(null=True, blank=True)
     feedback = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -158,17 +158,8 @@ def generate_dictation(params):
         audio_path = os.path.join(dictations_dir, f'dictation_{timestamp}.mp3')
         audio_url = generate_audio_from_text(result['text'], audio_path)
         
-        # Créer une entrée dans la base de données
-        from .models import Dictation
-        dictation = Dictation.objects.create(
-            text=result['text'],
-            title=result['title'],
-            difficulty=result['difficulty'],
-            audio_url=audio_url
-        )
-        
         return {
-            'id': dictation.id,
+            'id': 14,  # ID temporaire
             'text': result['text'],
             'audio_url': audio_url,
             'title': result['title'],
@@ -192,103 +183,105 @@ def correct_dictation(user_text: str, dictation_id: int) -> dict:
         
         # Récupérer la dictée originale
         from .models import Dictation, DictationAttempt
-        dictation = Dictation.objects.get(id=dictation_id)
+        try:
+            dictation = Dictation.objects.get(id=dictation_id)
+        except Dictation.DoesNotExist:
+            logger.error(f"Dictée {dictation_id} non trouvée")
+            raise
         
         # Vérification STRICTE du texte vide
         if not user_text or not user_text.strip():
             logger.warning("Texte vide détecté")
-            return {
+            result = {
                 'score': 0,
                 'errors': ['Le texte est vide. Veuillez écrire la dictée.'],
                 'correction': dictation.text,
                 'total_words': len(dictation.text.split()),
                 'error_count': len(dictation.text.split())
             }
+            
+            # Créer une tentative avec le texte vide
+            attempt = DictationAttempt.objects.create(
+                dictation=dictation,
+                user_text=user_text,
+                corrected_text=dictation.text,
+                score=0,
+                feedback="Le texte est vide. Veuillez écrire la dictée."
+            )
+            
+            return result
         
-        # Configuration de Gemini
+        # Configuration de l'API Gemini
         configure_gemini_api()
-        model = genai.GenerativeModel('gemini-pro')
         
-        # Prompt pour la correction
-        prompt = f"""Tu es un professeur de français qui corrige une dictée. 
-        Voici le texte original de la dictée :
-        
-        {dictation.text}
-        
-        Et voici le texte écrit par l'élève :
-        
-        {user_text}
-        
-        Ta tâche est de :
-        1. Comparer le texte avec la dictée originale MOT POUR MOT
-        2. Identifier toutes les erreurs (orthographe, grammaire, ponctuation)
-        3. Attribuer une note sur 100 en fonction de la qualité du texte
-        4. Fournir une liste détaillée des erreurs
-        5. Fournir le texte corrigé
-        
-        Règles de notation :
-        - Pour chaque mot manquant : -5 points
-        - Pour chaque erreur d'orthographe : -2 points
-        - Pour chaque erreur de grammaire : -3 points
-        - Pour chaque erreur de ponctuation : -1 point
-        - Note minimale : 0
-        - Note maximale : 100
-        
-        IMPORTANT : Réponds UNIQUEMENT avec un objet JSON valide au format suivant :
+        # Construction du prompt pour la correction
+        prompt = f"""
+        Tu es un professeur de français qui corrige des dictées. Réponds UNIQUEMENT avec un objet JSON valide, sans aucun autre texte.
+
+        Texte original : {dictation.text}
+        Texte de l'élève : {user_text}
+
+        Analyse le texte de l'élève et fournis :
+        1. Un score sur 100
+        2. Une liste des erreurs trouvées
+        3. Le texte corrigé
+
+        Format de réponse OBLIGATOIRE (réponds UNIQUEMENT avec ce JSON) :
         {{
-            "score": <note sur 100>,
+            "score": 85,
             "errors": [
-                "Description de l'erreur 1",
-                "Description de l'erreur 2"
+                "Erreur 1 : ...",
+                "Erreur 2 : ..."
             ],
-            "correction": "<texte corrigé>",
-            "total_words": <nombre total de mots>,
-            "error_count": <nombre total d'erreurs>
+            "correction": "Le texte corrigé avec les erreurs corrigées"
         }}
         """
         
-        # Génération de la correction
+        # Génération de la correction avec Gemini
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content(prompt)
         
-        # Nettoyage et parsing de la réponse JSON
-        response_text = response.text.strip()
-        if not response_text.startswith('{'):
-            response_text = response_text[response_text.find('{'):]
-        if not response_text.endswith('}'):
-            response_text = response_text[:response_text.rfind('}')+1]
+        # Validation et parsing de la réponse JSON
+        try:
+            # Nettoyage de la réponse pour s'assurer qu'elle est un JSON valide
+            response_text = response.text.strip()
+            if not response_text.startswith('{'):
+                response_text = response_text[response_text.find('{'):]
+            if not response_text.endswith('}'):
+                response_text = response_text[:response_text.rfind('}')+1]
+            
+            result = json.loads(response_text)
+            
+            # Validation des champs requis
+            required_fields = ['score', 'errors', 'correction']
+            if not all(field in result for field in required_fields):
+                raise ValueError("Réponse JSON incomplète")
+                
+        except json.JSONDecodeError as e:
+            logger.error(f"Erreur de parsing JSON : {str(e)}")
+            logger.error(f"Réponse brute de Gemini : {response.text}")
+            return {"error": "Erreur de correction de la dictée"}
+        except Exception as e:
+            logger.error(f"Erreur lors du traitement de la réponse : {str(e)}")
+            return {"error": str(e)}
         
-        result = json.loads(response_text)
-        
-        # Validation des champs requis
-        required_fields = ['score', 'errors', 'correction', 'total_words', 'error_count']
-        if not all(field in result for field in required_fields):
-            raise ValueError("Réponse JSON incomplète")
-        
-        # Créer une tentative
+        # Créer une tentative avec la correction
         attempt = DictationAttempt.objects.create(
             dictation=dictation,
             user_text=user_text,
+            corrected_text=result['correction'],
             score=result['score'],
-            feedback=json.dumps(result['errors'])
+            feedback="\n".join(result['errors'])
         )
         
-        return result
-        
-    except json.JSONDecodeError as e:
-        logger.error(f"Erreur de parsing JSON : {str(e)}")
         return {
-            'score': 0,
-            'errors': ['Erreur lors de la correction'],
-            'correction': dictation.text,
+            'score': result['score'],
+            'errors': result['errors'],
+            'correction': result['correction'],
             'total_words': len(dictation.text.split()),
-            'error_count': len(dictation.text.split())
+            'error_count': len(result['errors'])
         }
+        
     except Exception as e:
-        logger.error(f"Erreur lors de la correction : {str(e)}")
-        return {
-            'score': 0,
-            'errors': [str(e)],
-            'correction': dictation.text,
-            'total_words': len(dictation.text.split()),
-            'error_count': len(dictation.text.split())
-        } 
+        logger.error(f"Erreur lors de la correction de la dictée : {str(e)}")
+        return {"error": str(e)} 

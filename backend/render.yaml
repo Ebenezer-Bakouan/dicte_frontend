@@ -12,9 +12,7 @@ services:
       - key: WEB_CONCURRENCY
         value: 4
       - key: DATABASE_URL
-        fromDatabase:
-          name: dicte-db
-          property: connectionString
+        value: postgres://dicte_user:1dt2tsTB8fZv1xNLQG12PYD9ZmidM8Xr@dpg-d0un2mc9c44c73bf6ac0-a.oregon-postgres.render.com:5432/dicte
       - key: REDIS_URL
         fromService:
           type: redis

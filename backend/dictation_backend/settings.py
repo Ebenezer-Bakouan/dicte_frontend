@@ -78,6 +78,15 @@ DATABASES = {
         'PASSWORD': '1dt2tsTB8fZv1xNLQG12PYD9ZmidM8Xr',
         'HOST': 'dpg-d0un2mc9c44c73bf6ac0-a.oregon-postgres.render.com',
         'PORT': '5432',
+        'OPTIONS': {
+            'connect_timeout': 60,  # Augmente le timeout de connexion à 60 secondes
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
+        },
+        'CONN_MAX_AGE': 60,
+        'CONN_HEALTH_CHECKS': True,
     }
 }
 

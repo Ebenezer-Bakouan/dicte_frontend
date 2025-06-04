@@ -7,10 +7,9 @@ import { Play, Pause, RotateCcw, Volume2, VolumeX, Mic } from 'lucide-react';
 interface DictationPlayerProps {
   audioUrl: string;
   onComplete: (text: string) => void;
-  dictationId: number | null;
 }
 
-export default function DictationPlayer({ audioUrl, onComplete, dictationId }: DictationPlayerProps) {
+export default function DictationPlayer({ audioUrl, onComplete }: DictationPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -91,17 +90,7 @@ export default function DictationPlayer({ audioUrl, onComplete, dictationId }: D
   };
 
   const handleSubmit = () => {
-    console.log('Texte avant soumission:', userText);
-    console.log('Type du texte:', typeof userText);
-    console.log('Longueur du texte:', userText.length);
-    console.log('Texte après trim:', userText.trim());
-    console.log('Longueur après trim:', userText.trim().length);
-    
-    if (!userText.trim()) {
-      alert('Veuillez écrire votre dictée avant de la soumettre.');
-      return;
-    }
-    onComplete(userText.trim());
+    onComplete(userText);
   };
 
   return (
