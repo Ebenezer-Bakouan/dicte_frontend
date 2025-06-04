@@ -3,12 +3,14 @@ import axios from 'axios';
 
 const API_URL = 'https://dicte-backend.onrender.com/api';
 
+interface User {
+  id: number;
+  email: string;
+}
+
 interface AuthResponse {
   token: string;
-  user: {
-    id: number;
-    email: string;
-  };
+  user: User;
 }
 
 export const useAuth = () => {

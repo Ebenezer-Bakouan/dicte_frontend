@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from './Auth';
+import { useAuthState } from '@/hooks/useAuthState';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
@@ -10,15 +11,17 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { register, login, error, loading } = useAuth();
+  const { setAuth } = useAuthState();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = mode === 'login' 
       ? await login(email, password)
       : await register(email, password);
     
-    if (result && onSuccess) {
-      onSuccess();
+    if (result) {
+      setAuth(result.user, result.token);
+      onSuccess?.();
     }
   };
 
@@ -42,7 +45,7 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
           type="email"
           id="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           required
         />
@@ -56,7 +59,7 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
           type="password"
           id="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           required
         />
