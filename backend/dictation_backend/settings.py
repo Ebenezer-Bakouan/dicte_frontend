@@ -143,7 +143,8 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://dicte-frontend.vercel.app',
-    'https://dicte-frontend-git-main-ebenezer-bakouan.vercel.app'
+    'https://dicte-frontend-git-main-ebenezer-bakouan.vercel.app',
+    'https://dicte-frontend-afp44k8r0-ebenezer-bakouans-projects.vercel.app'
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -165,6 +166,7 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+CORS_ORIGIN_ALLOW_ALL = True  # Temporairement pour le débogage
 
 # Celery settings
 CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -20,7 +20,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch('https://dicte-backend.onrender.com/api/auth/register', {
+      const response = await fetch('https://dicte-backend.onrender.com/api/auth/register/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,6 +42,10 @@ export default function RegisterPage() {
     }
   };
 
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value);
+  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value);
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
@@ -62,7 +66,7 @@ export default function RegisterPage() {
               type="email"
               id="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
@@ -76,7 +80,7 @@ export default function RegisterPage() {
               type="password"
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
@@ -90,7 +94,7 @@ export default function RegisterPage() {
               type="password"
               id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={handleConfirmPasswordChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
