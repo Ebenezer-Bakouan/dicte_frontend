@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Dictée IA",
-  description: "Application de dictée assistée par IA",
+  title: "Dicte - Application de Dictée",
+  description: "Application de dictée pour améliorer votre orthographe",
 };
 
 export default function RootLayout({

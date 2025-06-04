@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'
 
 export default function Home() {
   const router = useRouter();
@@ -21,8 +22,16 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <h1 className="text-4xl font-bold mb-8">Bienvenue sur Dicte</h1>
+      <div className="flex gap-4">
+        <Link href="/auth/login" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Connexion
+        </Link>
+        <Link href="/auth/register" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          Inscription
+        </Link>
+      </div>
+    </main>
   );
 }
