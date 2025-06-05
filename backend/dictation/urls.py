@@ -16,9 +16,9 @@ urlpatterns = [
     # Routes existantes
     path('dictation/generate/', views.generate_dictation_view, name='generate_dictation'),
     path('dictation/correct/', views.correct_dictation_view, name='correct_dictation'),
-    path('dictations/', views.dictation_list, name='dictation-list'),
-    path('dictations/<int:pk>/', views.dictation_detail, name='dictation-detail'),
-    path('dictations/<int:pk>/attempt/', views.create_attempt, name='create-attempt'),
+    # path('dictations/', views.dictation_list, name='dictation-list'),
+    # path('dictations/<int:pk>/', views.dictation_detail, name='dictation-detail'),
+    # path('dictations/<int:pk>/attempt/', views.create_attempt, name='create-attempt'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Pour le débogage
