@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-development-key-123')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # Temporairement pour le débogage
+DEBUG = False  # Désactivé pour la production et alléger la charge
 
 ALLOWED_HOSTS = ['*']  # Temporairement pour le débogage
 
@@ -144,7 +144,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://dicte-frontend.vercel.app',
     'https://dicte-frontend-git-main-ebenezer-bakouan.vercel.app',
-    'https://dicte-frontend-afp44k8r0-ebenezer-bakouans-projects.vercel.app'
+    'https://dicte-frontend-afp44k8r0-ebenezer-bakouans-projects.vercel.app',
+    'https://dicte-kgem.vercel.app',  # Ajout du front de prod
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
@@ -166,7 +167,7 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
-CORS_ORIGIN_ALLOW_ALL = True  # Temporairement pour le débogage
+CORS_ORIGIN_ALLOW_ALL = False  # Désactivé pour la prod, sécurité
 
 # Celery settings
 CELERY_BROKER_URL = env('REDIS_URL', default='redis://localhost:6379/0')
@@ -198,7 +199,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'INFO',
+        'level': 'WARNING',  # Réduit la verbosité des logs
     },
     'loggers': {
         'dictation': {
@@ -210,4 +211,8 @@ LOGGING = {
 }
 
 # Gemini API settings
-GEMINI_API_KEY = 'AIzaSyDyCb6Lp9S-sOlMUMVrhwAHfeAiG6poQGI' 
+GEMINI_API_KEY = 'AIzaSyDyCb6Lp9S-sOlMUMVrhwAHfeAiG6poQGI'
+
+# Pour Render ou Procfile :
+# Commande recommandée pour Gunicorn (1 worker, timeout augmenté)
+# gunicorn dictation_backend.wsgi:application --workers=1 --timeout 90 

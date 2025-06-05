@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthState } from '@/hooks/useAuthState';
+import { FaUserCircle } from 'react-icons/fa';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -43,17 +44,21 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-center">Connexion</h1>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-400">
+      <div className="w-full max-w-md bg-white/90 rounded-2xl shadow-2xl p-8 sm:p-10 backdrop-blur-md animate-fade-in">
+        <div className="flex flex-col items-center mb-8">
+          <FaUserCircle className="text-indigo-500 text-6xl mb-2 drop-shadow-lg animate-bounce" />
+          <h1 className="text-3xl font-extrabold text-gray-900">Connexion</h1>
+          <p className="mt-2 text-sm text-gray-600">Bienvenue sur Dicte, votre plateforme d'apprentissage</p>
+        </div>
         {error && (
-          <div className="p-4 text-red-700 bg-red-100 rounded-md">
+          <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg border border-red-200 text-center animate-shake">
             {error}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
@@ -62,11 +67,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 bg-white/80"
+              placeholder="votre@email.com"
+              autoComplete="email"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Mot de passe
             </label>
             <input
@@ -75,22 +82,26 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200 bg-white/80"
+              placeholder="••••••••"
+              autoComplete="current-password"
             />
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-6 py-3 text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 rounded-lg hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 font-semibold text-lg shadow-md"
           >
             Se connecter
           </button>
         </form>
-        <p className="text-center text-sm text-gray-600">
-          Pas encore de compte ?{' '}
-          <Link href="/auth/register" className="text-blue-500 hover:text-blue-600">
-            S'inscrire
-          </Link>
-        </p>
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Pas encore de compte ?{' '}
+            <Link href="/auth/register" className="text-indigo-600 hover:text-indigo-700 font-medium underline underline-offset-2">
+              S'inscrire
+            </Link>
+          </p>
+        </div>
       </div>
     </main>
   );
